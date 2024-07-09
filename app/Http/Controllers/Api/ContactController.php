@@ -14,16 +14,17 @@ class ContactController extends Controller
             "name" => "required|string|max:255",
             "email" => "required|email|max:255",
             "subject" => "required|string|max:255",
-            "message" => "required|string|min:50", // Assurez-vous que ce champ correspond à celui envoyé depuis le formulaire
+            "message" => "required|string|min:50",
         ]);
 
         $data = $request->only('name', 'email', 'subject', 'message');
 
         try {
-            Mail::send([], [], function ($message) use ($data) {
-                $message->to('contact@webstart.com')
+            Mail::raw("Name: {$data['name']}\nEmail: {$data['email']}\nMessage: {$data['message']}", function ($message) use ($data) {
+                // envois mail a ladmin
+                $message->to('thomas.andradeve@gmail.com')
                         ->subject($data['subject'])
-                        ->setBody("Name: {$data['name']}\\nEmail: {$data['email']}\\nMessage: {$data['message']}");
+                        ->from($data['email'], $data['name']);
             });
 
             return response()->json(['success' => 'Votre message a été envoyé avec succès !']);
